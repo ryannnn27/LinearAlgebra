@@ -1,8 +1,26 @@
+import math
+from ._global import EPSILON
+
+
 class Vector:
 
     def __init__(self, lst):
         # _values: internal variable
         self._values = list(lst)  # immutable
+
+    @classmethod
+    def zero(cls, dim):
+        # return zero vector of dim dimension
+        return cls([0] * dim)
+
+    def norm(self):
+        # return norm of vector
+        return math.sqrt(sum(e**2 for e in self))
+
+    def normalize(self):
+        if self.norm() < EPSILON:
+            raise ZeroDivisionError("Normalize error! Norm of vector is zero.")
+        return self / self.norm()
 
     def __add__(self, another):
         assert len(self) == len(another), \
@@ -13,6 +31,12 @@ class Vector:
         assert len(self) == len(another), \
             "Error in subtracting. Length of vectors must be same."
         return Vector([a - b for a, b in zip(self, another)])
+
+    def dot(self, another):
+        # dot product
+        assert len(self) == len(another), \
+            "Error in dot product. Length of vectors must be same."
+        return sum(a * b for a, b in zip(self, another))
 
     def __mul__(self, k):
         # return self * k
