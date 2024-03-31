@@ -12,11 +12,37 @@ class Matrix:
         # return r * c zero matrix
         return cls([[0] * c for _ in range(r)])
 
+    @classmethod
+    def identity(cls, n):
+        # n * n square matrix
+        m = [[0] * n for _ in range(n)]
+        for i in range(n):
+            m[i][i] = 1
+        return cls(m)
+
+    def T(self):
+        # return Matrix transpose
+        return Matrix([[e for e in self.col_vector(i)]
+                       for i in range(self.col_num())])
+
     def __add__(self, another):
         assert self.shape() == another.shape(), \
             "Error in adding. Shape of matrix must be same."
         return Matrix([[a + b for a, b in zip(self.row_vector(i), another.row_vector(i))]
                        for i in range(self.row_num())])
+
+    def dot(self, another):
+        if isinstance(another, Vector):
+            # return multiplication of Matrix and Vector
+            assert self.col_num() == len(another), \
+                "Error in Matrix-Vector multiplication."
+            return Vector([self.row_vector(i).dot(another) for i in range(self.row_num())])
+        if isinstance(another, Matrix):
+            # m * n, n * k -> m * k
+            assert self.col_num() == another.row_num(), \
+                "Error in Matrix-Matrix multiplication."
+            return Matrix([[self.row_vector(i).dot(another.col_vector(j)) for j in range(another.col_num())]
+                           for i in range(self.row_num())])
 
     def __sub__(self, another):
         assert self.shape() == another.shape(), \
