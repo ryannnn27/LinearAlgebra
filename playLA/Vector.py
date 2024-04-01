@@ -22,6 +22,9 @@ class Vector:
             raise ZeroDivisionError("Normalize error! Norm of vector is zero.")
         return self / self.norm()
 
+    def underlying_list(self):
+        return self._values[:]  # immutable
+
     def __add__(self, another):
         assert len(self) == len(another), \
             "Error in adding. Length of vectors must be same."
