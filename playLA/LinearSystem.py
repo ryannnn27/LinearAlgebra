@@ -1,7 +1,8 @@
 from .Vector import Vector
+from ._global import is_zero
 
 
-class LinerSystem:
+class LinearSystem:
 
     def __init__(self, A, b):
 
@@ -9,45 +10,60 @@ class LinerSystem:
             "row number of A must be equal to the length of b."
         self._m = A.row_num()
         self._n = A.col_num()
-        assert self._m == self._n  # todo: remove this restriction
 
-        # Ab is Augmented matrix
+        # Ab is augmented matrix
         self.Ab = [Vector(A.row_vector(i).underlying_list() + [b[i]])
                    for i in range(self._m)]
+        # save column of pivot
+        self.pivots = []
 
-    def _max_row(self, index, n):
-
-        best, row_num = self.Ab[index][index], index
-        for i in range(index + 1, n):
-            if self.Ab[i][index] > best:
-                best, row_num = self.Ab[i][index], i
+    def _max_row(self, index_i, index_j, n):
+        # compare abs value in case swap 0 and negative number wrongly
+        best, row_num = abs(self.Ab[index_i][index_j]), index_i
+        for i in range(index_i + 1, n):
+            if abs(self.Ab[i][index_j]) > best:
+                best, row_num = abs(self.Ab[i][index_j]), i
         return row_num
 
     def _forward(self):
 
-        n = self._m
-        for i in range(n):
-            # Ab[i][i] is pivot
-            max_row = self._max_row(i, n)
-            # swap
-            self.Ab[i], self.Ab[max_row] = self.Ab[max_row], self.Ab[i],
-            # set pivot to 1
-            self.Ab[i] = self.Ab[i] / self.Ab[i][i]  # todo: self.Ab[i][i] == 0
-            for j in range(i + 1, n):
-                self.Ab[j] = self.Ab[j] - self.Ab[j][i] * self.Ab[i]
+        i, k = 0, 0
+        while i < self._m and k < self._n:
+            # see if Ab[i][k] is a pivot
+            max_row = self._max_row(i, k, self._m)
+            if max_row != i:
+                # swap
+                self.Ab[i], self.Ab[max_row] = self.Ab[max_row], self.Ab[i]
+
+            if is_zero(self.Ab[i][k]):
+                k += 1
+            else:
+                self.Ab[i] = self.Ab[i] / self.Ab[i][k]  # set pivot to 1
+                for j in range(i + 1, self._m):
+                    self.Ab[j] = self.Ab[j] - self.Ab[j][k] * self.Ab[i]
+                self.pivots.append(k)
+                i += 1
+                k += 1
 
     def _backward(self):
 
-        n = self._m
+        n = len(self.pivots)
         for i in range(n - 1, -1, -1):
-            # Ab[i][i] is pivot
+            k = self.pivots[i]
+            # Ab[i][k] is pivot
             for j in range(i - 1, -1, -1):
-                self.Ab[j] = self.Ab[j] - self.Ab[j][i] * self.Ab[i]
+                self.Ab[j] = self.Ab[j] - self.Ab[j][k] * self.Ab[i]
 
     def gauss_jordan_elimination(self):
 
         self._forward()
         self._backward()
+
+        # if there is a solution, return true then false
+        for i in range(len(self.pivots), self._m):
+            if not is_zero(self.Ab[i][-1]):
+                return False
+        return True
 
     def fancy_print(self):
 

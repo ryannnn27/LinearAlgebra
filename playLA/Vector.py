@@ -1,5 +1,5 @@
 import math
-from ._global import EPSILON
+from ._global import is_zero
 
 
 class Vector:
@@ -18,7 +18,7 @@ class Vector:
         return math.sqrt(sum(e**2 for e in self))
 
     def normalize(self):
-        if self.norm() < EPSILON:
+        if is_zero(self.norm()):
             raise ZeroDivisionError("Normalize error! Norm of vector is zero.")
         return self / self.norm()
 
