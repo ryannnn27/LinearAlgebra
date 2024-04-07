@@ -1,5 +1,6 @@
 from .Vector import Vector
 from ._global import is_zero
+from .Matrix import Matrix
 
 
 class LinearSystem:
@@ -12,8 +13,12 @@ class LinearSystem:
         self._n = A.col_num()
 
         # Ab is augmented matrix
-        self.Ab = [Vector(A.row_vector(i).underlying_list() + [b[i]])
-                   for i in range(self._m)]
+        if isinstance(b, Vector):
+            self.Ab = [Vector(A.row_vector(i).underlying_list() + [b[i]])
+                       for i in range(self._m)]
+        if isinstance(b, Matrix):
+            self.Ab = [Vector(A.row_vector(i).underlying_list() + b.row_vector(i).underlying_list())
+                       for i in range(self._m)]
         # save column of pivot
         self.pivots = []
 
@@ -71,3 +76,15 @@ class LinearSystem:
             print(" ".join(str(self.Ab[i][j]) for j in range(self._n)), end=" ")
             print("|", self.Ab[i][-1])
 
+
+def inv(A):
+
+    if A.row_num() != A.col_num():
+        return None
+
+    n = A.row_num()
+    ls = LinearSystem(A, Matrix.identity(n))
+    ls.gauss_jordan_elimination()
+    # todo: if there is a solution?
+    invA = [[row[i] for i in range(n, 2 * n)] for row in ls.Ab]
+    return Matrix(invA)
