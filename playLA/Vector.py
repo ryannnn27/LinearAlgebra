@@ -1,5 +1,5 @@
 import math
-from ._global import is_zero
+from ._global import is_zero, is_equal
 
 
 class Vector:
@@ -15,7 +15,7 @@ class Vector:
 
     def norm(self):
         # return norm of vector
-        return math.sqrt(sum(e**2 for e in self))
+        return math.sqrt(sum(e ** 2 for e in self))
 
     def normalize(self):
         if is_zero(self.norm()):
@@ -57,6 +57,17 @@ class Vector:
 
     def __neg__(self):
         return -1 * self
+
+    def __eq__(self, other):
+        # return if vectors are equal
+        other_list = other.underlying_list()
+        if len(other_list) != len(self._values):
+            return False
+        return all(is_equal(x, y) for x, y in zip(self._values, other_list))
+
+    def __neq__(self, other):
+        # return if vectors are NOT equal
+        return not (self == other)
 
     def __iter__(self):
         return self._values.__iter__()

@@ -33,4 +33,10 @@ if __name__ == "__main__":
         print("Cannot normalize zero vector {}.".format(zero2))
 
     print("{} dot product {} = {}".format(vec, vec2, vec.dot(vec2)))
+    print()
+
+    vec3 = Vector([0, 0])
+    print("{} == {}? {}".format(zero2, vec3, zero2 == vec3))
+    print("{} == {}? {}".format(vec2, vec3, vec2 == vec3))
+    print("{} != {}? {}".format(vec2, vec3, vec2 != vec3))
 
